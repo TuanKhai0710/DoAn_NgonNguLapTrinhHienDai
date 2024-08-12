@@ -1,0 +1,191 @@
+{% extends 'layout/base.html' %}
+{% block title %}Giỏ hàng{% endblock %}
+
+{% block content %}
+    {% load static %}
+    {% load humanize %} 
+    <section class="cart-wrapper">
+        <div class="container-fluid">
+            <div class="breadcrumb-cart">
+                <a href="/loai/all">
+                    <i class="fa-solid fa-chevron-left"></i>
+                    <span>Mua thêm sản phẩm khác</span>
+                </a>
+            </div>
+            <div class="cart-main">
+
+                <div class="checkout-steplist">
+                    <div class="checkout-step step-1 step-active">
+                        <i class='bx bxs-shopping-bag-alt step-icon'></i>
+                        <span class="step-text">Giỏ hàng</span>
+                    </div>
+                    <div class="checkout-step step-2">
+                        <i class='bx bxs-id-card step-icon'></i>
+                        <span class="step-text">Thông tin đặt hàng</span>
+                    </div>
+                    <div class="checkout-step step-3">
+                        <i class='bx bxs-credit-card step-icon'></i>
+                        <span class="step-text">Thanh toán</span>
+                    </div>
+                    <div class="checkout-step step-4">
+                        <i class='bx bxs-check-shield step-icon'></i>
+                        <span class="step-text">Hoàn tất</span>
+                    </div>
+                </div>
+
+                <div class="cart-error">
+
+                </div>
+
+                {% if Cart %}
+                    <div class="cart-info d-none form-current" id="cart-info-box">
+                        <div class="cart-products-wrapper">
+                            {% for cart in Cart %}
+                                <div class="cart-product-box d-flex">
+                                    <div class="cart-product-left d-flex flex-column align-items-center gap-2">
+                                        <a href="/sanpham/{{cart.SanPham.MaSP}}">
+                                            <div class="cart-img">
+                                                <img src="{% if cart.SanPham.HinhAnh %} {{cart.SanPham.HinhAnh}}
+                                                {% else %} {% static 'images/no-image.jpg' %} {% endif %}" alt="" />
+                                            </div>
+                                        </a>
+                                        <a href="javascript:void(0)" data-product="{{cart.SanPham.MaSP}}" class="delete-cart-item d-flex gap-2 align-items-center">
+                                            <i class="fa-regular fa-trash-can"></i>
+                                            <span>Xóa</span>
+                                        </a>
+                                    </div>
+                                    <div class="cart-product-right d-flex justify-content-between">
+                                        <div class="cart-product-name">
+                                            <a href="/sanpham/{{cart.SanPham.MaSP}}">
+                                                <h5>{{cart.SanPham.TenSP}}</h5>
+                                            </a>
+                                        </div>
+                                        <div class="cart-product-price-quantity">
+                                            <div class="cart-product-price">
+                                                <h5>{{cart.SanPham.DonGia|floatformat:"0"|intcomma}}đ</h5>
+                                            </div>
+                                            <div class="cart-product-quantity">
+                                                <button type="button" class="update-quantity decrease-quantity"
+                                                        data-product-btn="{{cart.SanPham.MaSP}}" data-update="decrease">
+                                                    <i class="fa-solid fa-minus"></i>
+                                                </button>
+                                                <input type="number" name="quantity" value="{{cart.SoLuong}}" data-product="{{cart.SanPham.MaSP}}" min="1" />
+                                                <button type="button" class="update-quantity increase-quantity"
+                                                        data-product-btn="{{cart.SanPham.MaSP}}" data-update="increase">
+                                                    <i class="fa-solid fa-plus"></i>
+                                                </button>
+                                                <strong class="ms-2 d-flex align-items-center">ĐVT: kilogram</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <hr class="cart-hr" />
+                        <div class="cart-product-total d-flex flex-column gap-3">
+                            <div class="summary-shipping">
+                                <span class="s-shipping-title">Phí vận chuyển: </span>
+                                <span class="ship-price">Miễn phí</span>
+                            </div>
+                            <div class="summary-price">
+                                <span class="s-price-title">Tổng tiền: </span>
+                                <span class="total-price">{{TongTien|floatformat:"0"|intcomma}}đ</span>
+                            </div>
+                            {% if user.is_authenticated %}
+                                <button class="summary-action cart-summary-btn" onclick="window.location.href='#cart-order-box'">
+                                    ĐẶT HÀNG NGAY
+                                </button>
+                            {% else %}
+                                <button class="summary-action not-logged-in">
+                                    ĐẶT HÀNG NGAY
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if user.is_authenticated %}
+                        <div class="cart-info d-none" id="cart-order-box">
+                            <div class="cart-order-wrapper">
+                                <div class="to-prev-step">
+                                    <a href="#cart-info-box">
+                                        <i class="fa-solid fa-chevron-left"></i>
+                                        <span>Quay lại</span>
+                                    </a>
+                                </div>
+                                <div class="form-error mt-1 mb-2"></div>
+                                <form action="#" method="post" id="form-info-edit">
+                                    <div class="cart-form">
+                                        <div class="cart-form-detail">
+                                            <div class="cart-form-header">
+                                                <h5>Thông tin khách mua hàng</h5>
+                                            </div>
+                                            <div class="cart-form-input my-4">
+                                                <div class="form-input-box position-relative d-flex align-items-center">
+                                                    <input type="text" id="UserFullName" name="UserFullName" value="{{KH.TenKH}}" class="form-input" required />
+                                                    <label for="UserFullName" class="input-label position-absolute">Họ tên</label>
+                                                </div>
+                                                <div class="form-input-box position-relative d-flex align-items-center">
+                                                    <input type="text" id="PhoneNumber" name="PhoneNumber" value="{{KH.SDT}}" class="form-input" required />
+                                                    <label for="PhoneNumber" class="input-label position-absolute">Số điện thoại</label>
+                                                </div>
+                                            </div>
+                                            <div class="cart-form-input-ship">
+                                                <div class="cart-form-header">
+                                                    <h5>Chọn cách nhận hàng</h5>
+                                                </div>
+                                                <div class="checkbox-shipmethod my-3">
+                                                    <input type="radio" id="cod-method" name="shipmethod" value="COD" checked />
+                                                    <label for="cod-method">Giao hàng tận nơi</label>
+                                                </div>
+                                                <div class="input-ship-info">
+                                                    <div class="form-input-box position-relative d-flex align-items-center">
+                                                        <input type="text" id="ship-address" name="ship-address" value="{{KH.DiaChi}}" class="form-input" required />
+                                                        <label for="ship-address" class="input-label position-absolute">Địa chỉ nhận hàng</label>
+                                                    </div>
+                                                </div>
+                                                <div class="checkbox-shipmethod my-3">
+                                                    <input type="radio" id="store-method" name="shipmethod" value="Store" />
+                                                    <label for="store-method">Nhận tại cửa hàng</label>
+                                                </div>
+                                            </div>
+                                            <div class="cart-note my-3">
+                                                <div class="form-input-box position-relative d-flex align-items-center">
+                                                    <input type="text" id="cart-note" name="cart-note" value="" class="form-input" />
+                                                    <label for="cart-note" class="input-label position-absolute">Lưu ý, yêu cầu khác (không bắt buộc)</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <hr class="cart-hr" />
+                            <div class="cart-product-total d-flex flex-column gap-3">
+                                <div class="summary-shipping">
+                                    <span class="s-shipping-title">Phí vận chuyển: </span>
+                                    <span class="ship-price">Miễn phí</span>
+                                </div>
+                                <div class="summary-price">
+                                    <span class="s-price-title">Tổng tiền: </span>
+                                    <span class="total-price">{{TongTien|floatformat:"0"|intcomma}}đ</span>
+                                </div>
+                                <button class="summary-action order-info-summary">
+                                    ĐẶT HÀNG NGAY
+                                </button>
+                                <small class="text-center">Bạn có thể chọn hình thức thanh toán sau khi đặt hàng</small>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <div class="cart-info">
+                        <div class="cart-empty d-flex flex-column align-items-center py-5">
+                            <p>Giỏ hàng của bạn đang trống</p>
+                            <button class="to-home-page-btn" onclick="window.location.href='/loai/all'">
+                                TIẾP TỤC MUA HÀNG
+                            </button>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <input type="hidden" value="{{csrf_token}}" id="csrf_token_input"  />
+    </section>
+{% endblock %}

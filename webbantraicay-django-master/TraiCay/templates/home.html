@@ -1,0 +1,133 @@
+{% extends 'layout/base.html' %}
+{% block title %} Trang chủ {% endblock %}
+
+{% block content %}
+
+    {% load humanize %} 
+    {% load static %}
+    <section class="menu">
+        <div class="sidebar">
+            <ul class="megamenu">
+
+            </ul>
+        </div>
+
+        {% if Sliders %}
+            <div class="slider">
+                <div id="carouselExampleFade" class="carousel slide carousel-fade" data-bs-ride="carousel">
+                    <div class="carousel-indicators">
+                        <button type="button" data-bs-target="#carouselExampleFade" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                        {% for slider in Sliders %}
+                            <button type="button" data-bs-target="#carouselExampleFade" data-bs-slide-to="{{forloop.counter}}" aria-label="Slide {{forloop.counter}}"></button>
+                        {% endfor %}
+                    </div>
+                    <div class="carousel-inner">
+                        {% for slider in Sliders %}
+                            <div class="carousel-item {%if forloop.first %} active {% endif %}">
+                                <a href="{{slider.Link}}">
+                                    <img src="{{slider.HinhAnh}}" class="d-block w-100" alt="...">
+                                </a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleFade" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleFade" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            </div>
+        {% endif %}
+    </section>
+
+    <section class="policy">
+        <div class="policy-item">
+            <i class="fa-solid fa-truck-fast policy-icon"></i>
+            <div class="policy-content-box">
+                <div class="policy-content">Đảm bảo đúng hẹn</div>
+                <div class="sub-policy-content">Hoàn lại tiền nếu sản phẩm bị hỏng</div>
+            </div>
+        </div>
+        <div class="policy-item">
+            <i class="fa-solid fa-wallet policy-icon"></i>
+            <div class="policy-content-box">
+                <div class="policy-content">Miến phí vận chuyển</div>
+                <div class="sub-policy-content">Cho đơn hàng trong bán kính 5km</div>
+            </div>
+        </div>
+        <div class="policy-item">
+            <i class="fa-solid fa-comments policy-icon"></i>
+            <div class="policy-content-box">
+                <div class="policy-content">Hỗ trợ trực tuyến</div>
+                <div class="sub-policy-content">Chúng tôi hỗ trợ 24/24</div>
+            </div>
+        </div>
+        <div class="policy-item">
+            <i class="fa-solid fa-gift policy-icon"></i>
+            <div class="policy-content-box">
+                <div class="policy-content">Khuyến mãi</div>
+                <div class="sub-policy-content">Nhiều khuyến mãi hấp dẫn</div>
+            </div>
+        </div>
+    </section>
+
+    {% if Home_Fruits %}
+        {% for home_fr in Home_Fruits %}
+            <section class="section-collection">
+                <div class="section-header">
+                    <div class="section-header-box">
+                        <h2 class="section-title">
+                            <a href="/loai/{{home_fr.loai.MaLoai}}">{{home_fr.loai.TenLoai}}</a>
+                        </h2>
+                        <div class="section-sub-header-box">
+                            <i class="fa-solid fa-truck"></i>
+                            <span>Miễn phí giao hàng</span>
+                        </div>
+                    </div>
+                    <div class="section-header-link">
+                        <a href="/loai/{{home_fr.loai.MaLoai}}">Xem tất cả</a>
+                    </div>
+                </div>
+                <div class="section-content">
+                    <div class="collection-slick-slider">
+                        {% for fruit in home_fr.fruits %}
+                            <div class="slick-slider-item">
+                                <div class="product-box">
+                                    <a href="/sanpham/{{fruit.MaSP}}" class="product-link">
+                                        <div class="product-image lazy-loading">
+                                            <img lazy-src="{% if fruit.HinhAnh %} {{fruit.HinhAnh}} {% else %} {% static 'images/no-image.jpg' %} {% endif %}" alt="" class="product-img">
+                                        </div>
+                                    </a>
+                                    {% if fruit.TonKho <= 0 %}
+                                        <div class="out-of-stock mt-1 text-center">
+                                            Hết hàng
+                                        </div>
+                                    {% endif %}
+                                    <a href="/sanpham/{{fruit.MaSP}}" class="product-link">
+                                        <div class="product-name">
+                                            {{fruit.TenSP}}
+                                        </div>
+                                    </a>
+
+                                    <div class="product-price d-flex align-items-center">
+                                        <span>{{ fruit.DonGia|floatformat:"0"|intcomma }}đ</span>
+                                    </div>
+                                    <button class="view-product" onclick="window.location.href='/sanpham/{{fruit.MaSP}}'">
+                                        <i class="fa-regular fa-eye"></i>
+                                    </button>
+                                    <button class="btn-add-to-cart" data-product="{{fruit.MaSP}}">
+                                        <i class="fa-solid fa-cart-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
+        {% endfor %}
+    {% endif %}
+    <input type="hidden" value="{{csrf_token}}" id="csrf_token_input"  />
+{% endblock %}

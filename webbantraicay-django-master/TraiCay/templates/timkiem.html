@@ -1,0 +1,165 @@
+{% extends 'layout/base.html' %}
+{% block title %}Tìm kiếm{% endblock %}
+
+{% block content %}
+
+    {% load humanize %} 
+    {% load static %}
+
+<section class="search-list">
+    <div class="search-value d-flex align-items-center justify-content-center">
+        <h3>
+            Tìm kiếm:
+            <span>{{value}}</span>
+        </h3>
+    </div>
+    {% if not Fruits %}
+        <div class="search-error d-flex flex-column align-items-center">
+            <div class="error-search-image d-flex justify-content-center">
+                <img src="{% static 'images/emotes/genshin-impact-emote.png' %}" alt="" />
+            </div>
+            <form action="/timkiem" method="GET" class="form-search-error d-flex">
+                <input type="search" class="input-search-error" name="q" value="{{value}}" placeholder="Tìm kiếm" />
+                <button class="submit-search-error" type="submit">Tìm kiếm</button>
+            </form>
+            <div class="error-search-message d-flex flex-column align-items-center">
+                <span>
+                    Rất tiếc, chúng tôi không tìm thấy kết quả cho từ khóa của bạn
+                </span>
+                <span>
+                    Vui lòng kiểm tra chính tả, sử dụng các từ tổng quát hơn và thử lại!
+                </span>
+            </div>
+        </div>
+    {% else %}
+        <div class="sort-dropdown-box d-flex justify-content-end">
+            <div class="sort-dropdown">
+                <button class="sort-dropdown-btn">
+                    <i class="fa-solid fa-arrow-down-short-wide"></i>
+                    Sắp xếp theo: <span id="sort-value"></span>
+                </button>
+                <div class="sort-dropdown-content">
+
+                    <a href="?q={{value}}&s=random">
+                        <div class="sort-dropdown-content-item ">
+                            Ngẫu nhiên
+                        </div>
+                    </a>
+
+                    <a href="?q={{value}}&s=p-asc">
+                        <div class="sort-dropdown-content-item ">
+                            Giá tăng dần
+                        </div>
+                    </a>
+
+                    <a href="?q={{value}}&s=p-desc">
+                        <div class="sort-dropdown-content-item ">
+                            Giá giảm dần
+                        </div>
+                    </a>
+
+                    <a href="?q={{value}}&s=n-asc">
+                        <div class="sort-dropdown-content-item ">
+                            Tên A - Z
+                        </div>
+                    </a>
+
+                    <a href="?q={{value}}&s=n-desc">
+                        <div class="sort-dropdown-content-item ">
+                            Tên Z - A
+                        </div>
+                    </a>
+
+                </div>
+            </div>
+        </div>
+
+
+        <div class="product-search-item-list">
+            {% for fruit in Fruits %}
+                <div class="product-search-item">
+                    <div class="product-box">
+                        <a href="/sanpham/{{fruit.MaSP}}" class="product-link">
+                            <div class="product-image lazy-loading">
+                                <img lazy-src="{% if fruit.HinhAnh %} {{fruit.HinhAnh}} {% else %} {% static 'images/no-image.jpg' %} {% endif %}" alt="" class="product-img">
+                            </div>
+                        </a>
+                        {% if fruit.TonKho <= 0 %}
+                            <div class="out-of-stock mt-1 text-center">
+                                Hết hàng
+                            </div>
+                        {% endif %}
+                        <a href="/sanpham/{{fruit.MaSP}}" class="product-link">
+                            <div class="product-name">
+                                {{fruit.TenSP}}
+                            </div>
+                        </a>
+
+                        <div class="product-price d-flex align-items-center">
+                            <span>{{ fruit.DonGia|floatformat:"0"|intcomma }}đ</span>
+                        </div>
+                        <button class="view-product" onclick="window.location.href='/sanpham/{{fruit.MaSP}}'">
+                            <i class="fa-regular fa-eye"></i>
+                        </button>
+                        <button class="btn-add-to-cart" data-product="{{fruit.MaSP}}">
+                            <i class="fa-solid fa-cart-plus"></i>
+                        </button>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+
+    <div class="pagination-box d-flex justify-content-center align-items-center">
+        {% if num_pages > 1 %}
+        <ul class="pagination d-flex align-items-center p-0 m-0">
+            {% if current_page > 1 %}
+                <li class="pagination-item">
+                    <a href="?page=1">
+                        <img src="{% static 'images/icons/double-chevron-left.png' %}" alt="" class="pagination-icon" />
+                    </a>
+                </li>
+                <li class="pagination-item">
+                    <a href="?page={{ previous_page }}">
+                        <img src="{% static 'images/icons/chevron-left.png' %}" alt="" class="pagination-icon" />
+                    </a>
+                </li>
+            {% endif %}
+
+            {% if current_page > 2 %}
+                <li class="pagination-item">...</li>
+            {% endif %}
+
+            {% for page_num in page_range %}
+                {% if page_num >= start_page and page_num <= end_page %}
+                    <li class="pagination-item {% if page_num == current_page %}active{% endif %}">
+                        <a href="?page={{ page_num }}">
+                            {{ page_num }}
+                        </a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if current_page < num_pages|add:"-1" %}
+                <li class="pagination-item">...</li>
+            {% endif %}
+
+            {% if current_page < num_pages %}
+                <li class="pagination-item">
+                    <a href="?page={{ next_page }}">
+                        <img src="{% static 'images/icons/chevron-right.png' %}" alt="" class="pagination-icon" />
+                    </a>
+                </li>
+                <li class="pagination-item">
+                    <a href="?page={{ num_pages }}">
+                        <img src="{% static 'images/icons/double-chevron-right.png' %}" alt="" class="pagination-icon" />
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    {% endif %}
+    </div>
+    <input type="hidden" value="{{csrf_token}}" id="csrf_token_input"  />
+</section>
+{% endblock %}
